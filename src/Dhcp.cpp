@@ -1,5 +1,7 @@
 // DHCP Library v0.3 - April 25, 2009
 // Author: Jordan Terrell - blog.jordanterrell.com
+// Edited: Bill coghill 11.AUG.17
+// - added HOSTNAME option as
 
 #include "utility/w5100.h"
 
@@ -8,6 +10,18 @@
 #include "Dhcp.h"
 #include "Arduino.h"
 #include "utility/util.h"
+
+char HOST_NAME[] = "WIZNet";
+//
+void DhcpClass::setHostName(char *dhcpHost) {
+	memset(HOST_NAME, 0, sizeof(HOST_NAME));
+	strcpy(HOST_NAME, dhcpHost);
+}
+//
+char * DhcpClass::getHostName() {
+	return HOST_NAME;
+}
+//
 
 int DhcpClass::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
 {
@@ -202,15 +216,33 @@ void DhcpClass::send_DHCP_MESSAGE(uint8_t messageType, uint16_t secondsElapsed)
     buffer[9] = 0x01;
     memcpy(buffer + 10, _dhcpMacAddr, 6);
 
-    // OPT - host name
-    buffer[16] = hostName;
+      // OPT - host name
+	/* Commented Out *
+	buffer[16] = hostName;
     buffer[17] = strlen(HOST_NAME) + 6; // length of hostname + last 3 bytes of mac address
     strcpy((char*)&(buffer[18]), HOST_NAME);
-
     printByte((char*)&(buffer[24]), _dhcpMacAddr[3]);
     printByte((char*)&(buffer[26]), _dhcpMacAddr[4]);
     printByte((char*)&(buffer[28]), _dhcpMacAddr[5]);
+  	*/
+	// Configure Host Name.
+	if (strcmp ("WIZNet",HOST_NAME) == 0)  // If Default Host Name.
+	{
+		buffer[16] = hostName;
+		buffer[17] = strlen(HOST_NAME) + 6; // length of hostname + last 3 bytes of mac address
+		strcpy((char*)&(buffer[18]), HOST_NAME);
 
+		printByte((char*)&(buffer[24]), _dhcpMacAddr[3]);
+		printByte((char*)&(buffer[26]), _dhcpMacAddr[4]);
+		printByte((char*)&(buffer[28]), _dhcpMacAddr[5]);
+	}
+	else    // If Host Name is set Using function.
+	{
+		buffer[16] = hostName;
+		buffer[17] = strlen(HOST_NAME); // length of hostname + last 3 bytes of mac address
+		strcpy((char*)&(buffer[18]), HOST_NAME);
+	}
+	
     //put data in W5100 transmit buffer
     _dhcpUdpSocket.write(buffer, 30);
 
