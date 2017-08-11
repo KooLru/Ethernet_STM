@@ -5,6 +5,7 @@ That library has been ported from the **WIZnet WIZ_Ethernet_Library**, to STM32F
 The library supports **W5100** and **W5500** Ethernet controllers. The source code has been modified to support the **W5200** too, but has not been tested (yet) on a real W5200 controller.
 
 Ported to STM32F103 on 23 Aug 2015 by **Vassilis Serasidis**
+
 Updated 0n 11 Aug 2017 by **Bill Coghill** to include option to set hostname.
 
 ### Setting Hostname ###
