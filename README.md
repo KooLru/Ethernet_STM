@@ -6,6 +6,14 @@ The library supports **W5100** and **W5500** Ethernet controllers. The source co
 
 Ported to STM32F103 on 23 Aug 2015 by **Vassilis Serasidis**
 
+Updated 0n 11 Aug 2017 by **Bill Coghill** to include option to set hostname.
+Modified Library at https://github.com/bcdaus/Ethernet_STM
+
+### Setting Hostname ###
+To Set Host Name: Ethernet.hostName("HOSTNAMEONE");
+
+To Print Host Name: Serial.println(Ethernet.getHostName());
+
 Library installation
 ----
 ### *Install the library globally* ###
