@@ -18,8 +18,6 @@
 // W5100 controller instance
 W5100Class W5100;
 
-#define SPI_CS 10
-#define STM32_SPI_CS PA4
 
 #define TX_RX_MAX_BUF_SIZE 2048
 #define TX_BUF 0x1100
@@ -33,19 +31,19 @@ void W5100Class::init(void)
   delay(300);
 
 #if defined(ARDUINO_ARCH_AVR)
-  SPI.begin();
+  ETHERNET_ETHERNET_SPI.begin();
   initSS();
 #elif defined (__STM32F1__)
-  pinMode(STM32_SPI_CS, OUTPUT);
-  SPI.begin();
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE0);
-  SPI.setClockDivider(SPI_CLOCK_DIV8);
+  pinMode(ETHERNET_SPI_CS, OUTPUT);
+  ETHERNET_SPI.begin();
+  ETHERNET_SPI.setBitOrder(MSBFIRST);
+  ETHERNET_SPI.setDataMode(SPI_MODE0);
+  ETHERNET_SPI.setClockDivider(SPI_CLOCK_DIV8);
 #else
-  SPI.begin(SPI_CS);
+  ETHERNET_SPI.begin(ETHERNET_SPI_CS);
   // Set clock to 4Mhz (W5100 should support up to about 14Mhz)
-  SPI.setClockDivider(SPI_CS, 21);
-  SPI.setDataMode(SPI_CS, SPI_MODE0);
+  ETHERNET_SPI.setClockDivider(ETHERNET_SPI_CS, 21);
+  ETHERNET_SPI.setDataMode(ETHERNET_SPI_CS, SPI_MODE0);
 #endif
   writeMR(1<<RST);
   writeTMSR(0x55);
@@ -148,23 +146,23 @@ uint8_t W5100Class::write(uint16_t _addr, uint8_t _data)
 {
 #if defined(ARDUINO_ARCH_AVR )
   setSS();  
-  SPI.transfer(0xF0);
-  SPI.transfer(_addr >> 8);
-  SPI.transfer(_addr & 0xFF);
-  SPI.transfer(_data);
+  ETHERNET_SPI.transfer(0xF0);
+  ETHERNET_SPI.transfer(_addr >> 8);
+  ETHERNET_SPI.transfer(_addr & 0xFF);
+  ETHERNET_SPI.transfer(_data);
   resetSS();
 #elif defined(__STM32F1__)
-  digitalWrite(STM32_SPI_CS, LOW);
-  SPI.transfer(0xF0);
-  SPI.transfer(_addr >> 8);
-  SPI.transfer(_addr & 0xFF);
-  SPI.transfer(_data);
-  digitalWrite(STM32_SPI_CS, HIGH);
+  digitalWrite(ETHERNET_SPI_CS, LOW);
+  ETHERNET_SPI.transfer(0xF0);
+  ETHERNET_SPI.transfer(_addr >> 8);
+  ETHERNET_SPI.transfer(_addr & 0xFF);
+  ETHERNET_SPI.transfer(_data);
+  digitalWrite(ETHERNET_SPI_CS, HIGH);
 #else
-  SPI.transfer(SPI_CS, 0xF0, SPI_CONTINUE);
-  SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-  SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-  SPI.transfer(SPI_CS, _data);
+  ETHERNET_SPI.transfer(ETHERNET_SPI_CS, 0xF0, SPI_CONTINUE);
+  ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr >> 8, SPI_CONTINUE);
+  ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr & 0xFF, SPI_CONTINUE);
+  ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _data);
 #endif
   return 1;
 }
@@ -175,25 +173,25 @@ uint16_t W5100Class::write(uint16_t _addr, const uint8_t *_buf, uint16_t _len)
   {
 #if defined(ARDUINO_ARCH_AVR)
   setSS();    
-  SPI.transfer(0xF0);
-  SPI.transfer(_addr >> 8);
-  SPI.transfer(_addr & 0xFF);
+  ETHERNET_SPI.transfer(0xF0);
+  ETHERNET_SPI.transfer(_addr >> 8);
+  ETHERNET_SPI.transfer(_addr & 0xFF);
   _addr++;
-  SPI.transfer(_buf[i]);
+  ETHERNET_SPI.transfer(_buf[i]);
   resetSS();
 #elif defined(__STM32F1__)
-  digitalWrite(STM32_SPI_CS, LOW);
-	SPI.transfer( 0xF0);
-	SPI.transfer( _addr >> 8);
-	SPI.transfer( _addr & 0xFF);
+  digitalWrite(ETHERNET_SPI_CS, LOW);
+	ETHERNET_SPI.transfer( 0xF0);
+	ETHERNET_SPI.transfer( _addr >> 8);
+	ETHERNET_SPI.transfer( _addr & 0xFF);
      _addr++; 
-	SPI.transfer( _buf[i]);
-  digitalWrite(STM32_SPI_CS, HIGH);
+	ETHERNET_SPI.transfer( _buf[i]);
+  digitalWrite(ETHERNET_SPI_CS, HIGH);
 #else
-	SPI.transfer(SPI_CS, 0xF0, SPI_CONTINUE);
-	SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-	SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-	SPI.transfer(SPI_CS, _buf[i]);
+	ETHERNET_SPI.transfer(ETHERNET_SPI_CS, 0xF0, SPI_CONTINUE);
+	ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr >> 8, SPI_CONTINUE);
+	ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr & 0xFF, SPI_CONTINUE);
+	ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _buf[i]);
     _addr++;
 #endif
   }
@@ -204,23 +202,23 @@ uint8_t W5100Class::read(uint16_t _addr)
 {
 #if defined(ARDUINO_ARCH_AVR)
   setSS();  
-  SPI.transfer(0x0F);
-  SPI.transfer(_addr >> 8);
-  SPI.transfer(_addr & 0xFF);
-  uint8_t _data = SPI.transfer(0);
+  ETHERNET_SPI.transfer(0x0F);
+  ETHERNET_SPI.transfer(_addr >> 8);
+  ETHERNET_SPI.transfer(_addr & 0xFF);
+  uint8_t _data = ETHERNET_SPI.transfer(0);
   resetSS();
 #elif defined(__STM32F1__)
-  digitalWrite(STM32_SPI_CS, LOW);
-  SPI.transfer(0x0F);
-  SPI.transfer( _addr >> 8);
-  SPI.transfer(_addr & 0xFF);
-  uint8_t _data = SPI.transfer(0);
-  digitalWrite(STM32_SPI_CS, HIGH);
+  digitalWrite(ETHERNET_SPI_CS, LOW);
+  ETHERNET_SPI.transfer(0x0F);
+  ETHERNET_SPI.transfer( _addr >> 8);
+  ETHERNET_SPI.transfer(_addr & 0xFF);
+  uint8_t _data = ETHERNET_SPI.transfer(0);
+  digitalWrite(ETHERNET_SPI_CS, HIGH);
 #else
-  SPI.transfer(SPI_CS, 0x0F, SPI_CONTINUE);
-  SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-  SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-  uint8_t _data = SPI.transfer(SPI_CS, 0);
+  ETHERNET_SPI.transfer(ETHERNET_SPI_CS, 0x0F, SPI_CONTINUE);
+  ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr >> 8, SPI_CONTINUE);
+  ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr & 0xFF, SPI_CONTINUE);
+  uint8_t _data = ETHERNET_SPI.transfer(ETHERNET_SPI_CS, 0);
 #endif
   return _data;
 }
@@ -231,25 +229,25 @@ uint16_t W5100Class::read(uint16_t _addr, uint8_t *_buf, uint16_t _len)
   {
 #if defined(ARDUINO_ARCH_AVR)
   setSS();
-  SPI.transfer(0x0F);
-  SPI.transfer(_addr >> 8);
-  SPI.transfer(_addr & 0xFF);
+  ETHERNET_SPI.transfer(0x0F);
+  ETHERNET_SPI.transfer(_addr >> 8);
+  ETHERNET_SPI.transfer(_addr & 0xFF);
   _addr++;
-  _buf[i] = SPI.transfer(0);
+  _buf[i] = ETHERNET_SPI.transfer(0);
   resetSS();
 #elif defined(__STM32F1__)
-  digitalWrite(STM32_SPI_CS, LOW);
-	SPI.transfer(0x0F);
-	SPI.transfer(_addr >> 8);
-	SPI.transfer(_addr & 0xFF);
+  digitalWrite(ETHERNET_SPI_CS, LOW);
+	ETHERNET_SPI.transfer(0x0F);
+	ETHERNET_SPI.transfer(_addr >> 8);
+	ETHERNET_SPI.transfer(_addr & 0xFF);
   _addr++;  
-  _buf[i] = SPI.transfer(0);
-  digitalWrite(STM32_SPI_CS, HIGH);
+  _buf[i] = ETHERNET_SPI.transfer(0);
+  digitalWrite(ETHERNET_SPI_CS, HIGH);
 #else
-	SPI.transfer(SPI_CS, 0x0F, SPI_CONTINUE);
-	SPI.transfer(SPI_CS, _addr >> 8, SPI_CONTINUE);
-	SPI.transfer(SPI_CS, _addr & 0xFF, SPI_CONTINUE);
-    _buf[i] = SPI.transfer(SPI_CS, 0);
+	ETHERNET_SPI.transfer(ETHERNET_SPI_CS, 0x0F, SPI_CONTINUE);
+	ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr >> 8, SPI_CONTINUE);
+	ETHERNET_SPI.transfer(ETHERNET_SPI_CS, _addr & 0xFF, SPI_CONTINUE);
+    _buf[i] = ETHERNET_SPI.transfer(ETHERNET_SPI_CS, 0);
     _addr++;
 #endif
   }

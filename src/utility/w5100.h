@@ -18,6 +18,28 @@ typedef uint8_t SOCKET;
 //#define W5200_ETHERNET_SHIELD // WIZ820io, W5200 Ethernet Shield 
 #define W5500_ETHERNET_SHIELD   // WIZ550io, ioShield series of WIZnet
 
+
+#if defined(__STM32F1__)
+
+//SPI1
+//#define ETHERNET_SPI_CS PA4 //SPI 1 CS
+//#define ETHERNET_SPI  SPI
+
+//or 
+
+//SPI2
+#define ETHERNET_SPI_CS PB12 //SPI 2 CS
+//Define SPI_2 in you sketch: SPIClass SPI_2(2); //Create an SPI2 object.
+extern SPIClass SPI_2;//(2); //Create an SPI2 object.
+#define ETHERNET_SPI SPI_2
+
+#else
+#define ETHERNET_SPI_CS 10
+#define ETHERNET_SPI  SPI
+#endif
+
+
+
 #if defined(W5500_ETHERNET_SHIELD)
 //#define WIZ550io_WITH_MACADDRESS // Use assigned MAC address of WIZ550io
 #include "utility/w5500.h"
